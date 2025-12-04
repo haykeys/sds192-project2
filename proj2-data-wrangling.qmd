@@ -43,9 +43,9 @@ top_10_budget <- cleaned_imdb |>
   slice(1:10)
 
 # Format numeric values to be in dollar format
-library(formattable)
-top_10_budget$budget <- currency(top_10_budget$budget, digits = 0L)
-top_10_budget$gross <- currency(top_10_budget$gross, digits = 0L)
+# library(formattable)
+# top_10_budget$budget <- currency(top_10_budget$budget, digits = 0L)
+# top_10_budget$gross <- currency(top_10_budget$gross, digits = 0L)
 ```
 
 ```{r}
