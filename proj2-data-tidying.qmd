@@ -1,0 +1,35 @@
+---
+title: "SDS 192 final project data tidying"
+format: html
+---
+
+```{r}
+# remove rows containing NAs
+library(tidyverse)
+library(lubridate)
+imdb <- read_csv("movies.csv")|>
+  drop_na()
+```
+
+```{r}
+#convert rating into factor
+imdb$rating <- as.factor(imdb$rating)
+imdb$genre <- as.factor(imdb$genre)
+```
+
+```{r}
+#drop repetitive column of release year
+imdb <- imdb|> select(-released)
+```
+
+```{r}
+#group star and director by keeping the 10 most frequent names and aggregate others into "Others"
+imdb <- imdb|> mutate(star_agg = fct_lump(star, n = 10),
+         director_agg = fct_lump(director, n=10))
+```
+
+```{r}
+#write to csv
+write.csv(imdb, "/Users/laurensung/Documents/SDS192_Proj2/cleaned_imdb.csv", row.names = FALSE)
+```
+

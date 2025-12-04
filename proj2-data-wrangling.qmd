@@ -1,0 +1,94 @@
+---
+title: "SDS 192 final project data wrangling"
+format: html
+---
+
+```{r}
+# load cleaned dataset
+
+library(dplyr)
+cleaned_imdb <- read_csv("cleaned_imdb.csv")
+```
+
+```{r}
+# Arranges the movies by the IMDb score 
+
+by_score <- cleaned_imdb |>
+  select(director, score) |>
+  group_by(director) |>
+  mutate(movie_number = n(),
+         director = ifelse(movie_number < 15, "Misc", director)) |>
+  arrange(director, score) |>
+  select(director, score)
+```
+
+```{r}
+# Counts the number of successful movies for each movie's main actor/actress
+# Success is determined by the average value of revenue; if the revenue is higher than the average value, then it is considered successful
+
+each_star <- cleaned_imdb |>
+  group_by(star) |>
+  filter(gross >= mean(gross)) |>
+  summarize(count_above_avg_rev = n()) |>
+  arrange(desc(count_above_avg_rev))
+```
+
+```{r}
+# Finds the top 10 movies with the most budget
+# Converts the format of numeric values to dollar format using the formattable package, currency function
+
+top_10_budget <- cleaned_imdb |>
+  select(name, director, year, budget, gross, score) |>
+  arrange(desc(budget)) |>
+  slice(1:10)
+
+# Format numeric values to be in dollar format
+library(formattable)
+top_10_budget$budget <- currency(top_10_budget$budget, digits = 0L)
+top_10_budget$gross <- currency(top_10_budget$gross, digits = 0L)
+```
+
+```{r}
+# Finds the number of movies in each category of MPA rating as well as their mean and median revenues for each rating
+# Converts the format of numeric values to dollar format using the formattable package, currency function
+
+rating_rev <- cleaned_imdb |>
+  select(name, director, year, rating, gross) |>
+  group_by(rating) |>
+  summarize(count = n(),
+            med_revenue = median(gross, na.rm = TRUE),
+            avg_revenue = mean(gross, na.rm = TRUE)) |>
+  arrange(desc(med_revenue))
+
+# Format numeric values to be in dollar format
+library(formattable)
+rating_rev$med_revenue <- currency(rating_rev$med_revenue, digits = 0L)
+rating_rev$avg_revenue <- currency(rating_rev$avg_revenue, digits = 0L)
+
+# Movies that are rated mature tend to have a smaller gross revenue, but hard to determine from this dataset as it contains such a small sample of movies rated TV-MA
+
+# Finds the 2 movies rated TV-MA
+rated_MA <- cleaned_imdb |>
+  filter(rating == "TV-MA")
+print(rated_MA)
+```
+
+```{r}
+# Arranges the dataset in the order of descending runtime to analyze the relationship between runtime and score
+
+runtime_score <- cleaned_imdb |>
+  select(name, director, year, runtime, score) |>
+  arrange(desc(runtime))
+```
+
+
+```{r}
+#write to csv the df's we want to graph
+write.csv(by_score, "/Users/laurensung/Documents/SDS192_Proj2/by_score.csv", row.names = FALSE)
+
+write.csv(rating_rev, "/Users/laurensung/Documents/SDS192_Proj2/rating_rev.csv",
+          row.names = FALSE)
+
+write.csv(top_10_budget, "/Users/laurensung/Documents/SDS192_Proj2/top_10_budget.csv",
+          row.names = FALSE)
+```

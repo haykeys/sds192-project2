@@ -1,0 +1,65 @@
+---
+title: "proj2-data-visualization"
+format: html
+---
+
+```{r}
+# loading packages
+library(ggplot2)
+library(tidyverse)
+```
+
+#### Figure 1: What prolific directors produce the highest scoring movies?
+```{r}
+by_score <- read.csv("by_score.csv")
+
+by_score |>
+  ggplot(aes(x = director, y = score)) +
+  geom_boxplot() +
+  labs(title = "Distribution of Movie Scores Across Popular Directors",
+       x = "Movie Director",
+       y = "IMDb Score (1-10)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+#### Figure 2: Which movies (by IMDb score and rating) tend to earn the most revenue?
+```{r}
+cleaned_imdb <- read.csv("cleaned_imdb.csv")
+
+cleaned_imdb |>
+  select(score, rating, gross) |>
+  ggplot(aes(x = score, y = gross, color = rating)) +
+  geom_point() +
+  labs(title = "Distribution of Movie Revenue vs IMDb Score and Movie Rating",
+       x = "IMDb score (1-10)",
+       y = "Gross Revenue (in dollars)",
+       color = "Movie Rating") +
+  scale_y_continuous(labels = scales::comma)
+```
+
+#### Figure 3: How does revenue change as movie budget increases?
+```{r}
+cleaned_imdb |>
+  select(gross, budget) |>
+  ggplot(aes(x = budget, y = gross)) +
+  geom_point() +
+  labs(title = "Distribution of Movie Revenue vs Movie Budget",
+       x = "Movie Budget (in dollars)",
+       y = "Movie Revenue (in dollars)") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+```
+
+#### Figure 4: What are the ratings for the ten movies with the highest budget?
+```{r}
+top_10_budget <- read.csv("top_10_budget.csv")
+
+top_10_budget |>
+  ggplot(aes(x = reorder(name, budget), y = score)) +
+  geom_col() +
+  labs(title = "IMDb Scores of the Ten Movies with the Highest Budgets",
+       x = "Movie Name",
+       y = "IMDb Rating (1-10)") +
+  coord_flip()
+```
